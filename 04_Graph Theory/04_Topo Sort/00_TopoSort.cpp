@@ -1,6 +1,6 @@
 // ---
-// 存图前记得初始化
-// Ans排序结果，G邻接表，deg入度，map用于判断重边
+// 存图前记得初始化\\
+// Ans排序结果，G邻接表，deg入度，map用于判断重边\\
 // 排序成功返回1，存在环返回0
 // ---
 const int maxn = "Edit";
@@ -17,9 +17,7 @@ void init(int n)
 void add_edge(int u, int v)
 {
     if (S[mp(u, v)]) return;
-    G[u].pb(v);
-    S[mp(u, v)] = 1;
-    deg[v]++;
+    G[u].pb(v), S[mp(u, v)] = 1, deg[v]++;
 }
 bool Toposort(int n)
 {
@@ -29,14 +27,11 @@ bool Toposort(int n)
         if (deg[i] == 0) q.push(i);
     while (!q.empty())
     {
-        int v = q.front();
+        int u = q.front();
         que.pop();
-        Ans[tot++] = v;
-        for (int i = 0; i < G[v].size(); ++i)
-        {
-            int t = G[v][i];
-            if (--deg[t] == 0) q.push(t);
-        }
+        Ans[tot++] = u;
+        for (auto& v : G[u])
+            if (--deg[v] == 0) q.push(t);
     }
     if (tot < n - 1) return false;
     return true;

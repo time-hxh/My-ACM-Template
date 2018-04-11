@@ -36,4 +36,5 @@ $ python Manual.py
 ```
 
 # Update
+- 2018.4.11 新增轻重链剖分与Link-Cut Tree模板
 - 2018.3.7 模板简单修改

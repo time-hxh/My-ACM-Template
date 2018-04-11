@@ -1436,6 +1436,110 @@ int rmq(int x1, int y1, int x2, int y2)
     return max(max(m1, m2), max(m3, m4));
 }
 \end{lstlisting}
+\subsection{Heavy-Light Decomposition}
+\begin{lstlisting}
+const int maxn = "Edit";
+struct HLD
+{
+    int n, dfs_clock;
+    int sz[maxn], top[maxn], son[maxn], dep[maxn], fa[maxn], id[maxn];
+    vector<int> G[maxn];
+    void init(int n)
+    {
+        this->n = n, clr(son, -1), dfs_clock = 0;
+        for (int i = 0; i < n; i++) G[i].clear();
+    }
+    void add_edge(int u, int v) { G[u].pb(v), G[v].pb(u); }
+    void dfs(int u, int p, int d)
+    {
+        dep[u] = d, fa[u] = p, sz[u] = 1;
+        for (auto& v : G[u])
+        {
+            if (v == p) continue;
+            dfs(v, u, d + 1);
+            sz[u] += sz[v];
+            if (son[u] == -1 || sz[v] > sz[son[u]]) son[u] = v;
+        }
+    }
+    void link(int u, int t)
+    {
+        top[u] = t, id[u] = ++dfs_clock;
+        if (son[u] == -1) return;
+        link(son[u], t);
+        for (auto& v : G[u])
+            if (v != son[u] && v != fa[u]) link(v, v);
+    }
+    // 数据结构相关操作，一般使用线段树或者树状数组
+    int query_path(int u, int v)
+    {
+        int ret = 0;
+        while (top[u] != top[v])
+        {
+            if (dep[top[u]] < dep[top[v]]) swap(u, v);
+            ret += query(id[top[u]], id[u]);
+            u = fa[top[u]];
+        }
+        if (dep[u] > dep[v]) swap(u, v);
+        ret += query(id[u], id[v]);
+    }
+};
+\end{lstlisting}
+\subsection{Link-Cut Tree}
+\begin{lstlisting}
+\end{lstlisting}
+动态维护一个森林
+\begin{lstlisting}
+const int maxn = "Edit";
+struct LCT
+{
+    int val[maxn], sum[maxn]; // 基于点权
+    int rev[maxn], ch[maxn][2], fa[maxn];
+    int stk[maxn];
+    inline void init(int n)
+    { // 初始化点权
+        for (int i = 1; i <= n; i++) scanf("%d", val + i);
+    }
+    inline bool isroot(int x) { return ch[fa[x]][0] != x && ch[fa[x]][1] != x; }
+    inline bool get(int x) { return ch[fa[x]][1] == x; }
+    void pushdown(int x)
+    {
+        if (!rev[x]) return;
+        swap(ch[x][0], ch[x][1]);
+        if (ch[x][0]) rev[ch[x][0]] ^= 1;
+        if (ch[x][1]) rev[ch[x][1]] ^= 1;
+        rev[x] ^= 1;
+    }
+    void pushup(int x) { sum[x] = val[x] + sum[ch[x][0]] + sum[ch[x][1]]; }
+    void rotate(int x)
+    {
+        int y = fa[x], z = fa[fa[x]], d = get(x);
+        if (!isroot(y)) ch[z][get(y)] = x;
+        fa[x] = z;
+        ch[y][d] = ch[x][d ^ 1], fa[ch[y][d]] = y;
+        ch[x][d ^ 1] = y, fa[y] = x;
+        pushup(y), pushup(x);
+    }
+    void splay(int x)
+    {
+        int top = 0;
+        stk[++top] = x;
+        for (int i = x; !isroot(i); i = fa[i]) stk[++top] = fa[i];
+        for (int i = top; i; i--) pushdown(stk[i]);
+        for (int f; !isroot(x); rotate(x))
+            if (!isroot(f = fa[x])) rotate(get(x) == get(f) ? f : x);
+    }
+    void access(int x)
+    {
+        for (int y = 0; x; y = x, x = fa[x]) splay(x), ch[x][1] = y, pushup(x);
+    }
+    int find(int x) { access(x), splay(x); while (ch[x][0]) x = ch[x][0]; return x; }
+    void makeroot(int x) { access(x), splay(x), rev[x] ^= 1; }
+    void link(int x, int y) { makeroot(x), fa[x] = y, splay(x); }
+    void cut(int x, int y) { makeroot(x), access(y), splay(y), fa[x] = ch[y][0] = 0; }
+    void update(int x, int v) { val[x] = v, access(x), splay(x); }
+    int query(int x, int y) { makeroot(y), access(x), splay(x); return sum[x]; }
+};
+\end{lstlisting}
 \clearpage\section{Graph Theory}
 \subsection{Union-Find Set}
 \begin{lstlisting}
@@ -1443,7 +1547,8 @@ const int maxn = "Edit";
 int n, fa[maxn], ra[maxn];
 void init()
 {
-    for (int i = 0; i <= n; i++) fa[i] = i, ra[i] = 0;
+    clr(ra, 0);
+    iota(fa, fa + n, 0);
 }
 int find(int x) { return fa[x] != x ? fa[x] = find(fa[x]) : x; }
 void unite(int x, int y)
@@ -1629,8 +1734,8 @@ void Floyd(int n)
 \subsection{Topo Sort}
 \begin{lstlisting}
 \end{lstlisting}
-存图前记得初始化
-Ans排序结果，G邻接表，deg入度，map用于判断重边
+存图前记得初始化\\
+Ans排序结果，G邻接表，deg入度，map用于判断重边\\
 排序成功返回1，存在环返回0
 \begin{lstlisting}
 const int maxn = "Edit";
@@ -1647,9 +1752,7 @@ void init(int n)
 void add_edge(int u, int v)
 {
     if (S[mp(u, v)]) return;
-    G[u].pb(v);
-    S[mp(u, v)] = 1;
-    deg[v]++;
+    G[u].pb(v), S[mp(u, v)] = 1, deg[v]++;
 }
 bool Toposort(int n)
 {
@@ -1659,14 +1762,11 @@ bool Toposort(int n)
         if (deg[i] == 0) q.push(i);
     while (!q.empty())
     {
-        int v = q.front();
+        int u = q.front();
         que.pop();
-        Ans[tot++] = v;
-        for (int i = 0; i < G[v].size(); ++i)
-        {
-            int t = G[v][i];
-            if (--deg[t] == 0) q.push(t);
-        }
+        Ans[tot++] = u;
+        for (auto& v : G[u])
+            if (--deg[v] == 0) q.push(t);
     }
     if (tot < n - 1) return false;
     return true;
