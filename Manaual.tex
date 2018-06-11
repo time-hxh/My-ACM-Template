@@ -610,14 +610,14 @@ void fft(Complex y[], int len, int on)
 $G^{\frac{P-1}{n}}$具有和$w_n=e^{\frac{2i\pi}{n}}$相似的性质。
 具体的P和G可参考1.11
 \begin{lstlisting}
-const int mod = 998244353;
+const int mod = 119 << 23 | 1;
 const int G = 3;
-ll wn[20];
+int wn[20];
 void getwn()
-{   //  千万不要忘记
+{ //  千万不要忘记
     for (int i = 0; i < 20; i++) wn[i] = Pow(G, (mod - 1) / (1 << i), mod);
 }
-void change(ll y[], int len)
+void change(int y[], int len)
 {
     for (int i = 1, j = len / 2; i < len - 1; i++)
     {
@@ -627,29 +627,29 @@ void change(ll y[], int len)
         if (j < k) j += k;
     }
 }
-void ntt(ll y[], int len, int on)
+void ntt(int y[], int len, int on)
 {
     change(y, len);
     for (int h = 2, id = 1; h <= len; h <<= 1, id++)
     {
         for (int j = 0; j < len; j += h)
         {
-            ll w = 1;
+            int w = 1;
             for (int k = j; k < j + h / 2; k++)
             {
-                ll u = y[k] % mod;
-                ll t = w * (y[k + h / 2] % mod) % mod;
+                int u = y[k] % mod;
+                int t = 1LL * w * (y[k + h / 2] % mod) % mod;
                 y[k] = (u + t) % mod, y[k + h / 2] = ((u - t) % mod + mod) % mod;
-                w = w * wn[id] % mod;
+                w = 1LL * w * wn[id] % mod;
             }
         }
     }
     if (on == -1)
     {
         //  原本的除法要用逆元
-        ll inv = Pow(len, mod - 2, mod);
+        int inv = Pow(len, mod - 2, mod);
         for (int i = 1; i < len / 2; i++) swap(y[i], y[len - i]);
-        for (int i = 0; i < len; i++) y[i] = y[i] * inv % mod;
+        for (int i = 0; i < len; i++) y[i] = 1LL * y[i] * inv % mod;
     }
 }
 \end{lstlisting}
@@ -1916,7 +1916,8 @@ void dfs(int u, int fa)
     sp.push_back(u);
     for (auto& v : G[u])
     {
-        if (v != fa) dfs(v, u);
+        if (v == fa) continue;
+        dfs(v, u);
         sp.push_back(u);
     }
 }
@@ -1934,7 +1935,8 @@ int lca(int u, int v)
     if (l > r) swap(l, r);
     int k = 31 - __builtin_clz(r - l + 1);
     return min(dp[k][l], dp[k][r - (1 << k) + 1]).Y;
-}\end{lstlisting}
+}
+\end{lstlisting}
 \subsection{Depth-First Traversal}
 \subsubsection{Biconnected-Component}
 \begin{lstlisting}

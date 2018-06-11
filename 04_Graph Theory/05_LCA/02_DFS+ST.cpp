@@ -18,7 +18,8 @@ void dfs(int u, int fa)
     sp.push_back(u);
     for (auto& v : G[u])
     {
-        if (v != fa) dfs(v, u);
+        if (v == fa) continue;
+        dfs(v, u);
         sp.push_back(u);
     }
 }
