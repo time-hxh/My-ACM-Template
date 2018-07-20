@@ -65,7 +65,7 @@ def NewSetting():
 
 
 def Clear():
-    for suffix in ['aux', 'log', 'toc']:
+    for suffix in ['aux', 'log', 'toc', 'out']:
         filename = '%s.%s' % (FILE, suffix)
         if os.path.exists(filename):
             os.remove(filename)

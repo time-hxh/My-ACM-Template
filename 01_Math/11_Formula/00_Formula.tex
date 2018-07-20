@@ -54,6 +54,10 @@ $gcd(Fib(m),Fib(n))=Fib(gcd(m,n))$
 
 $h(0)=h(1)=1,h(n)=\frac{(4n-2)h(n-1)}{n+1}=\frac{C_{2n}^n}{n+1}=C_{2n}^n-C_{2n}^{n-1}$
 
+\item 伯努利数：$B_n = -\frac{1}{n+1} \sum_{i=0}^{n-1} C_{n+1}^i B_i$
+
+$$\sum_{i=1}^n i^k = \frac{1}{k+1} \sum_{i=1}^{k+1}C_{k+1}^i B_{k+1-i}(n+1)^i$$
+
 \item FFT常用素数
 
 \begin{tabular}{cccc}
